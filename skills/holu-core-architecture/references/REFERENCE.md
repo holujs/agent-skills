@@ -318,7 +318,7 @@ interface DynamicModuleOptions<E extends AnyObj = AnyObj> extends Partial<Provid
 
 // The final exported type used in imports[]:
 interface DynamicModule<M extends AnyObj = AnyObj> extends DynamicModuleBase<M>, DynamicModuleOptions {
-  mixinOptions?: MixinDynamicOptionsMap; // present when used with mixin decorators
+  mixinOptions?: DynamicMixinOptionsMap; // present when used with mixin decorators
 }
 ```
 
