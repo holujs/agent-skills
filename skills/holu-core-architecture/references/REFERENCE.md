@@ -437,7 +437,7 @@ import {
 // ...
 
 /**
- * An object with this type will be passed directly to the aspect decorator - @aspectSome({ one: 1, two: 2 })
+ * An object with this type will be passed directly to the aspect decorator - @someAspect({ one: 1, two: 2 })
  */
 interface MyStaticAspectOptions extends StaticAspectOptions<DynamicAspectOptions> {
   one?: number;
@@ -477,11 +477,11 @@ function transformAspectOptions(data?: MyStaticAspectOptions): ModuleAspectHandl
 }
 
 // Creating the aspect decorator
-const aspectSome: ModuleAspectDecorator<MyStaticAspectOptions, DynamicAspectOptions, MyNormalizedModuleMeta> =
+const someAspect: ModuleAspectDecorator<MyStaticAspectOptions, DynamicAspectOptions, MyNormalizedModuleMeta> =
   Reflector.makeClassDecorator(transformAspectOptions);
 
 // Using aspect decorator
-@aspectSome({ one: 1, two: 2 })
+@someAspect({ one: 1, two: 2 })
 export class SomeModule {}
 ```
 
@@ -499,7 +499,7 @@ export class SomeModule {}
 
 ### Grouping Aspect Decorators via `decoratorId`
 
-When creating a substitute decorator (with `'root'` or `'feature'` role) using `Reflector.makeClassDecorator()`, you **must** pass the base modifier decorator (e.g. `restAspect` or `aspectSome`) as the third argument. This third argument serves as the `decoratorId`. It tells Holu that these decorators belong to the same group, enabling the framework to correctly collect, normalize, and associate metadata with the proper group context during initialization.
+When creating a substitute decorator (with `'root'` or `'feature'` role) using `Reflector.makeClassDecorator()`, you **must** pass the base modifier decorator (e.g. `restAspect` or `someAspect`) as the third argument. This third argument serves as the `decoratorId`. It tells Holu that these decorators belong to the same group, enabling the framework to correctly collect, normalize, and associate metadata with the proper group context during initialization.
 
 ### Separation of Module Logic and Substitute Decorators via hostModule
 
