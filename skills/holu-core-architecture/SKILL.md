@@ -165,14 +165,14 @@ export class UsersModule {
 
 Pass extension-specific data via `extensionsMeta` inside `DynamicModule` or module decorators (`@featureModule`, `@restModule`, etc.). Keep each extension's data under a single dedicated key. During module initialization, `extensionsMeta` is normalized into `normalizedModuleMeta.extensionsMeta`, where extensions can access it (e.g. `const oasOptions = normalizedModuleMeta.extensionsMeta.oasOptions as OasOptions`).
 
-### Mixin Decorators
+### Aspect Decorators
 
-An **mixin decorator** is a custom class decorator created using `Reflector.makeClassDecorator()` whose options are processed and normalized by **module mixins** during the module initialization phase.
+An **aspect decorator** is a custom class decorator created using `Reflector.makeClassDecorator()` whose options are processed and normalized by **module aspects** during the module initialization phase.
 
 > [!WARNING]
-> If you can easily pass metadata to a module using a dynamic module, creating an mixin decorator is **not recommended**. Consider using a dynamic module first.
+> If you can easily pass metadata to a module using a dynamic module, creating an aspect decorator is **not recommended**. Consider using a dynamic module first.
 
-For details on the roles of mixin decorators (root module, feature module, and modifier decorators), usage rules, and parent module mixin propagation mechanics, see [references/REFERENCE.md](references/REFERENCE.md#part-3-mixin-decorators-and-modulemixin).
+For details on the roles of aspect decorators (root module, feature module, and modifier decorators), usage rules, and parent module aspect propagation mechanics, see [references/REFERENCE.md](references/REFERENCE.md#part-3-aspect-decorators-and-moduleaspect).
 
 ### Provider Visibility And Lifetime
 
@@ -504,7 +504,7 @@ For complete code examples, typed method design, log buffering mechanics, and ov
 7. Check for missing `@injectable()` on a class that has constructor dependencies.
 8. Ensure that array types are not being passed directly as runtime tokens; check for `InjectionToken` usage.
 9. Verify that any `TokenProvider` (using `useToken`) eventually terminates in a non-token provider mapping.
-10. Check for accidental mixing of regular and multi-providers.
+10. Check for accidental aspectg of regular and multi-providers.
 
 ### Metadata Reflector Troubleshooting Checklist
 
