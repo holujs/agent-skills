@@ -405,7 +405,7 @@ An aspect decorator can serve three roles:
 
 1. **Root Module Decorator** (e.g., `@restRootModule`): Declares a root module and extends the behavior/metadata of `@rootModule`. This decorator's transformer function returns an `ModuleAspectHandler` subclass instance with its `moduleRole` property set to `'root'`.
 2. **Feature Module Decorator** (e.g., `@restModule`): Declares a feature module and extends the behavior/metadata of `@featureModule`. This decorator's transformer function returns an `ModuleAspectHandler` subclass instance with its `moduleRole` property set to `'feature'`.
-3. **Modifier Decorator** (e.g., `@aspectRest`): Modifies/extends an already declared root or feature module. This decorator's transformer function returns an `ModuleAspectHandler` subclass instance with its `moduleRole` property set to `undefined`. Several modifier decorators can be applied to a single class (stacked).
+3. **Modifier Decorator** (e.g., `@restAspect`): Modifies/extends an already declared root or feature module. This decorator's transformer function returns an `ModuleAspectHandler` subclass instance with its `moduleRole` property set to `undefined`. Several modifier decorators can be applied to a single class (stacked).
 
 #### Decorator Usage Rules
 
@@ -414,7 +414,7 @@ An aspect decorator can serve three roles:
 
 #### Parent Module Aspects Propagation
 
-- **Static feature modules:** If a child module is a static class decorated with `@featureModule` (meaning it has no custom aspect decorators of its own), it automatically inherits the parent module's module aspects (such as `aspectRest` or `aspectTrpc`) during scanning.
+- **Static feature modules:** If a child module is a static class decorated with `@featureModule` (meaning it has no custom aspect decorators of its own), it automatically inherits the parent module's module aspects (such as `restAspect` or `trpcAspect`) during scanning.
   - This inheritance automatically imports the parent module aspect's `hostModule` (e.g., `RestModule`) into the child module, ensuring that extensions (like `BodyParserExtension`) do not crash due to missing route/context providers.
   - **Exception:** This automatic propagation is **skipped** for external modules (meaning modules imported from `node_modules`) to avoid circular imports and missing dependency resolution errors in third-party or framework core modules (like `ContextModule`).
 - **Dynamic feature modules:** Dynamic modules that do not have custom decorators can similarly inherit parent hooks when they are imported, automatically populating their initialization options and importing the corresponding host modules.
@@ -499,7 +499,7 @@ export class SomeModule {}
 
 ### Grouping Aspect Decorators via `decoratorId`
 
-When creating a substitute decorator (with `'root'` or `'feature'` role) using `Reflector.makeClassDecorator()`, you **must** pass the base modifier decorator (e.g. `aspectRest` or `aspectSome`) as the third argument. This third argument serves as the `decoratorId`. It tells Holu that these decorators belong to the same group, enabling the framework to correctly collect, normalize, and associate metadata with the proper group context during initialization.
+When creating a substitute decorator (with `'root'` or `'feature'` role) using `Reflector.makeClassDecorator()`, you **must** pass the base modifier decorator (e.g. `restAspect` or `aspectSome`) as the third argument. This third argument serves as the `decoratorId`. It tells Holu that these decorators belong to the same group, enabling the framework to correctly collect, normalize, and associate metadata with the proper group context during initialization.
 
 ### Separation of Module Logic and Substitute Decorators via hostModule
 
@@ -552,7 +552,7 @@ export class MyFeatureModule {}
 When importing a dynamic module in the context of an aspect decorator:
 
 1. The dynamic module's custom options (like `path` or `guards`) are merged into the `dynamicModule.aspectOptions` Map under the aspect decorator's token.
-2. If `Module1` itself is a plain `@featureModule` (not decorated with `@aspectRest` or `@restModule`), the framework automatically retrieves the default hook class for the decorator from the application's register, clones it, registers it in the module's `moduleAspectMap` list, and calls `normalize()`.
+2. If `Module1` itself is a plain `@featureModule` (not decorated with `@restAspect` or `@restModule`), the framework automatically retrieves the default hook class for the decorator from the application's register, clones it, registers it in the module's `moduleAspectMap` list, and calls `normalize()`.
 3. This ensures that custom options (such as REST routing prefixes and route guards) are correctly applied to plain feature modules during import.
 
 ## Part 4: Metadata Reflector References
@@ -642,7 +642,7 @@ class UsersService {}
 
 1. **`transformer`**: (Optional) A function that transforms the decorator arguments into a structured object (e.g., `(config) => config`).
 2. **`name`**: (Optional) A string containing the name of the decorator.
-3. **`decoratorId`**: (Optional) An identifier (typically another decorator factory function) to group related class decorators together. This is a general feature of `Reflector.makeClassDecorator()` that allows different class decorators to share a common ID, facilitating their collection and inspection under the same group. For example, in aspect-decorators, the substitute decorators (like `restModule`) pass the base modifier decorator (like `aspectRest`) as the `decoratorId` so Holu knows they belong to the same group.
+3. **`decoratorId`**: (Optional) An identifier (typically another decorator factory function) to group related class decorators together. This is a general feature of `Reflector.makeClassDecorator()` that allows different class decorators to share a common ID, facilitating their collection and inspection under the same group. For example, in aspect-decorators, the substitute decorators (like `restModule`) pass the base modifier decorator (like `restAspect`) as the `decoratorId` so Holu knows they belong to the same group.
 
 _Note: Class decorator factories capture the directory where they are executed, which is used by Holu's module discovery to resolve relative paths._
 
