@@ -975,7 +975,7 @@ export class CustomApp extends BaseApplication {
 `getActiveInstances()` scans:
 
 1. `this.injectorPerApp` (Application scope injector).
-2. All module-level injectors from `this.moduleManager.getInjectorsPerMod().values()`.
+2. All module-level injectors from `this.moduleRegistry.getInjectorsPerMod().values()`.
 
 It retrieves instantiated singleton instances via `injector.getInstances()`. Services registered in `providersPerReq` or `providersPerRou` or singletons that were never instantiated during the app runtime are excluded.
 
