@@ -489,7 +489,7 @@ export class SomeModule {}
 
 - `moduleRole?: 'root' | 'feature'`: Set to `'root'` or `'feature'` to make the aspect decorator act as a complete module decorator (meaning standard decorators are not required).
 - `hostModule?: StaticModule`: If specified, the module class representing the host module will be automatically imported into any module class decorated with this aspect decorator.
-- `hostAspectOptions?: T`: Raw options to pass as aspect parameters for the host module. When `hostModule` is normalizer-scanned, this allows attaching metadata to the host module class without directly decorating it (avoiding circular imports).
+- `hostStaticAspectOptions?: T`: Raw options to pass as aspect parameters for the host module. When `hostModule` is normalizer-scanned, this allows attaching metadata to the host module class without directly decorating it (avoiding circular imports).
 - `normalize(normalizedModuleMeta)`: Normalizes and validates raw options, returning a normalized metadata object that is saved in `normalizedModuleMeta.normalizedAspectMetaMap`.
 - `getModulesToScan(meta)`: Returns an array of `ModRefId` modules that should also be scanned (e.g., appended modules in REST).
 - `exportAppProviders(config)`: Invoked at bootstrap to collect and export application-level providers.
