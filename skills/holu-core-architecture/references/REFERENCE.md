@@ -318,7 +318,7 @@ interface DynamicModuleOptions<E extends AnyObj = AnyObj> extends Partial<Provid
 
 // The final exported type used in imports[]:
 interface DynamicModule<M extends AnyObj = AnyObj> extends DynamicModuleBase<M>, DynamicModuleOptions {
-  aspectOptions?: DynamicAspectOptionsMap; // present when used with aspect decorators
+  dynamicAspectOptionsMap?: DynamicAspectOptionsMap; // present when used with aspect decorators
 }
 ```
 
@@ -551,7 +551,7 @@ export class MyFeatureModule {}
 
 When importing a dynamic module in the context of an aspect decorator:
 
-1. The dynamic module's custom options (like `path` or `guards`) are merged into the `dynamicModule.aspectOptions` Map under the aspect decorator's token.
+1. The dynamic module's custom options (like `path` or `guards`) are merged into the `dynamicModule.dynamicAspectOptionsMap` Map under the aspect decorator's token.
 2. If `Module1` itself is a plain `@featureModule` (not decorated with `@restAspect` or `@restModule`), the framework automatically retrieves the default hook class for the decorator from the application's register, clones it, registers it in the module's `moduleAspectMap` list, and calls `normalize()`.
 3. This ensures that custom options (such as REST routing prefixes and route guards) are correctly applied to plain feature modules during import.
 
