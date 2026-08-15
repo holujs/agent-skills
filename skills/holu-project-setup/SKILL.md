@@ -1,6 +1,6 @@
 ---
 name: holu-project-setup
-description: Guidance on using Holu CLI (holu, dm) for project bootstrapping and watch-running (start). Includes templates (rest, trpc), minimal single-file applications, and AI agent usage guidelines.
+description: Guidance on using Holu CLI (holu) for project bootstrapping and watch-running (start). Includes templates (rest, trpc), minimal single-file applications, and AI agent usage guidelines.
 ---
 
 # Holu Project Setup & CLI
@@ -11,16 +11,16 @@ This skill covers bootstrapping new Holu applications, installing templates, con
 
 ## Installation & Bootstrapping
 
-You can create a new Holu application using `@holu/cli` (via `npx` or local installation `holu`/`dm`):
+You can create a new Holu application using `@holu/cli` (via `npx` or local installation `holu`):
 
 ```bash
 npx @holu/cli new my-app [options]
-# Or using the local alias:
-dm new my-app [options]
+# Or using the local installation:
+holu new my-app [options]
 ```
 
 > [!TIP]
-> Run `npx @holu/cli --help` or `dm --help` to discover all available commands, options, and templates.
+> Run `npx @holu/cli --help` or `holu --help` to discover all available commands, options, and templates.
 
 ### Options for `new`
 
@@ -49,16 +49,16 @@ npx @holu/cli new my-trpc-app -t trpc-monorepo --skip-install
 
 ## Holu CLI (`@holu/cli`)
 
-Binary aliases `holu` and `dm` are available when the package is installed locally:
+The binary alias `holu` is available when the package is installed locally:
 
 ```bash
 npm i -D @holu/cli
 ```
 
-You can use the `dm` alias to run CLI commands:
+You can use the `holu` alias to run CLI commands:
 
 ```bash
-dm start [entryFile] [options]
+holu start [entryFile] [options]
 ```
 
 ### The `start` Command
@@ -67,8 +67,8 @@ Runs the Holu application in development mode with incremental TypeScript watch 
 
 ```bash
 npx @holu/cli start [entryFile] [options]
-# Or using the local alias:
-dm start [entryFile] [options]
+# Or using the local installation:
+holu start [entryFile] [options]
 ```
 
 #### Options for `start`

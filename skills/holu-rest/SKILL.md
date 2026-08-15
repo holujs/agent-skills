@@ -76,7 +76,7 @@ The Node.js HTTP server listener routes all raw requests directly to `RequestDis
   1. Extracts URL pathname and search parameters.
   2. Normalizes `HEAD` methods to `GET`.
   3. Queries the `Router` for a matching route handler.
-  4. If no route is found, calls `sendNotImplemented()` (`404` depending on routing state).
+  4. If no route is found, calls `sendNotFound()` (`404` depending on routing state).
   5. Wraps route execution in a `catch` block that delegates to `sendInternalServerError()` if an unhandled error escapes the router handler.
 - **Customization / Interception:**
   - To wrap the **entire** request lifecycle (including routing, parameter parsing, and guards) inside a custom context or scope (e.g., OpenTelemetry tracing context, request ID logging), you **must** override `RequestDispatcher` at the `providersPerApp` level.
