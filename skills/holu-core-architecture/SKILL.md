@@ -58,7 +58,9 @@ Holu supports importing modules in two forms:
   ```ts
   imports: [SomeModule];
   ```
-- **Dynamic Module:** An object configuration implementing the `DynamicModule` interface (e.g., `{ module: SomeModule, path: 'prefix' }`). Use this when configuration details, route prefixes, or custom provider overrides need to be supplied at the import site. Dynamic modules are often returned by static helper methods (e.g., `SomeModule.withConfig(opts)`).
+- **Dynamic Module & Wrappers:** An object configuration implementing the `DynamicModule` interface (e.g., `{ module: SomeModule, path: 'prefix' }`). Use this when configuration details, route prefixes, or custom provider overrides need to be supplied at the import site. You can also wrap a dynamic module using the `DynamicModuleWrapper` interface (`{ dynamicModule: DynamicModule }`) to apply different configurations when importing it across multiple aspects.
+  > [!WARNING]
+  > **You can reuse the exact same `DynamicModule` object reference across multiple imports or wrappers ONLY when imported into a single consumer module.** Holu merges dynamic aspect options directly into the underlying `DynamicModule` object. If you reuse the exact same object across **different consumer modules**, the options from one module's wrappers will leak into and merge with the other module's imports globally. Always create a **new** instance of the `DynamicModule` (e.g., by calling a factory method like `SomeModule.forRoot()`) when importing the module into a different consumer module. See [references/REFERENCE.md](references/REFERENCE.md#dynamicmodulewrapper-shape) for the full wrapper shape and mechanics.
   ```ts
   imports: [{ module: SomeModule, providersPerReq: [MyOverrideService] }];
   ```

@@ -347,6 +347,24 @@ Use `path` for a relative route prefix, `absolutePath` for an absolute one. They
 
 When a module is imported with `DynamicModule`, the framework treats the object identity as the module's key. This is why re-exporting must use the **same object reference**.
 
+### `DynamicModuleWrapper` Shape
+
+In addition to `DynamicModule`, a module can also be imported using `DynamicModuleWrapper`. This wrapper is crucial when you import the **same** dynamic module across multiple aspects and need different configurations for each.
+
+```ts
+interface DynamicModuleWrapper {
+  dynamicModule: DynamicModule;
+  module?: never;
+}
+```
+
+> [!WARNING]
+> When Holu processes a `DynamicModuleWrapper`, it extracts the `dynamicOptions` provided alongside the `dynamicModule` property and merges them directly into the `dynamicAspectOptionsMap` of the underlying `DynamicModule` object, using the aspect's `decoratorId` as the key.
+> Because the base `DynamicModule` is mutated, **you can reuse the exact same `DynamicModule` object reference across multiple wrappers ONLY when imported into a single consumer module** (e.g., configuring the module differently for `@aspect1` and `@aspect2` on that same consumer module).
+> However, you **must not** reuse the same `DynamicModule` object reference across **different consumer modules**. Doing so will cause the options from one module's wrappers to leak into and merge with the other module's imports globally. Always create a **new** instance of the `DynamicModule` (e.g., via a static `forRoot()` method) when importing it into a different consumer module.
+
+When a `DynamicModuleWrapper` is exported, the framework unpacks it and exports only the underlying `dynamicModule`.
+
 ### `getTokens()` Behavior
 
 `getTokens(providers: Provider[]): Token[]` extracts the token from each provider in the array:
