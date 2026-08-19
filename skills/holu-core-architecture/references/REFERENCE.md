@@ -508,7 +508,7 @@ export class SomeModule {}
 - `moduleRole?: 'root' | 'feature'`: Set to `'root'` or `'feature'` to make the aspect decorator act as a complete module decorator (meaning standard decorators are not required).
 - `hostModule?: StaticModule`: If specified, the module class representing the host module will be automatically imported into any module class decorated with this aspect decorator.
 - `hostStaticAspectOptions?: T`: Raw options to pass as aspect parameters for the host module. When `hostModule` is normalizer-scanned, this allows attaching metadata to the host module class without directly decorating it (avoiding circular imports).
-- `normalize(normalizedModuleMeta)`: Normalizes and validates raw options, returning a normalized metadata object that is saved in `normalizedModuleMeta.normalizedAspectMetaMap`.
+- `normalize(normalizedModuleMeta)`: Normalizes and validates raw options, returning a normalized metadata object that is saved in `normalizedModuleMeta.normalizedAspectsMetaMap`.
 - `getModulesToScan(meta)`: Returns an array of `ModRefId` modules that should also be scanned (e.g., appended modules in REST).
 - `exportAppProviders(config)`: Invoked at bootstrap to collect and export application-level providers.
 - `importModulesShallow(config)`: Invoked during shallow imports step to collect routes, paths, controllers, and guards.
@@ -570,7 +570,7 @@ export class MyFeatureModule {}
 When importing a dynamic module in the context of an aspect decorator:
 
 1. The dynamic module's custom options (like `path` or `guards`) are merged into the `dynamicModule.dynamicAspectOptionsMap` Map under the aspect decorator's token.
-2. If `Module1` itself is a plain `@featureModule` (not decorated with `@restAspect` or `@restModule`), the framework automatically retrieves the default hook class for the decorator from the application's register, clones it, registers it in the module's `moduleAspectMap` list, and calls `normalize()`.
+2. If `Module1` itself is a plain `@featureModule` (not decorated with `@restAspect` or `@restModule`), the framework automatically retrieves the default hook class for the decorator from the application's register, clones it, registers it in the module's `moduleAspectsMap` list, and calls `normalize()`.
 3. This ensures that custom options (such as REST routing prefixes and route guards) are correctly applied to plain feature modules during import.
 
 ## Part 4: Metadata Reflector References
