@@ -43,12 +43,12 @@ export class SomeModule {}
 export class AppModule {}
 ```
 
-`@holu/rest` and `@holu/trpc` provide specialized module decorators with extended metadata:
+`@holu/rest` and `@holu/trpc` represent entire **platforms** — they go beyond ordinary feature modules by providing an application class, an application initializer class, and specialized module decorators with extended metadata:
 
 - **`@restModule` / `@restRootModule`** (`@holu/rest`): Supports all base properties, plus `controllers: []` and `appends: []` (attaches module controllers under route prefixes without consuming provider exports).
 - **`@trpcModule` / `@trpcRootModule`** (`@holu/trpc`): Supports all base properties, plus `controllers: []` (registers tRPC controllers).
 
-> **Do not mix** `@holu/rest` and `@holu/trpc` entities in the same application. Check a package's `peerDependencies` to confirm architectural style compatibility.
+> **Do not mix** `@holu/rest` and `@holu/trpc` entities in the same application. Check a package's `peerDependencies` to confirm platform compatibility.
 
 ### Static vs Dynamic Modules
 
@@ -475,7 +475,7 @@ You can optionally supply a custom array of signals: `app.enableShutdownHooks(['
 When `app.close(signal)` is called (via signal or manually), `BaseApplication` executes a 3-step sequence:
 
 1. **`BeforeShutdown` hooks:** Calls `beforeShutdown(signal?: string)` on instantiated singletons (`providersPerApp` / `providersPerMod`). Ideal for stopping background timers or queue workers.
-2. **`customShutdown(signal?: string)`:** Extension point method in `BaseApplication`. Subclasses like `RestApplication` override this to perform package-level shutdown logic (e.g. calling `server.close()`, destroying idle sockets, and waiting up to `shutdownTimeout` for active HTTP requests to drain). Custom application classes (e.g. for gRPC or WebSockets) can also override `customShutdown()` to handle package-specific server stopping.
+2. **`customShutdown(signal?: string)`:** Extension point method in `BaseApplication`. Platform application classes like `RestApplication` override this to perform platform-level shutdown logic (e.g. calling `server.close()`, destroying idle sockets, and waiting up to `shutdownTimeout` for active HTTP requests to drain). Custom platforms (e.g. for gRPC or WebSockets) can also override `customShutdown()` to handle their specific server stopping.
 3. **`OnShutdown` hooks:** Calls `onShutdown(signal?: string)` on instantiated singletons (`providersPerApp` / `providersPerMod`). Ideal for closing database connection pools, Redis clients, or file handles.
 
 ### Shutdown Execution Mechanics & Nuances

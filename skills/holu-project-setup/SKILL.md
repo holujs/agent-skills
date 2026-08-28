@@ -113,8 +113,7 @@ import { WatchCompiler, ProcessManager, AssetWatcher, startCommand, newCommand }
 
 ## Minimal REST Application
 
-Use this minimal setup instead of cloning a full starter repository when:
-
+Use this minimal setup (based on the `@holu/rest` platform) instead of cloning a full starter repository when:
 - The user requests a minimal, single-file, or lightweight demonstration/POC of Holu.
 - The project structure does not require a full starter template architecture.
 - For quick debugging or unit testing of a simple Holu REST application.

@@ -5,7 +5,7 @@ description: Detailed workflow/lifecycle of HTTP requests in a Holu REST applica
 
 # Holu REST Request Lifecycle & Workflow
 
-This skill explains how incoming HTTP requests are processed inside a Holu application configured with `@holu/rest` (`RestModule`), the sequence of interceptors and guards, and how to hook into the workflow at different levels.
+This skill explains how incoming HTTP requests are processed inside a Holu application configured with the `@holu/rest` platform (`RestModule`), the sequence of interceptors and guards, and how to hook into the workflow at different levels.
 
 ---
 
