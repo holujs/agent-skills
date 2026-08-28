@@ -244,7 +244,7 @@ export class MyController {
 When graceful shutdown is enabled (`app.enableShutdownHooks()`):
 1. **`BeforeShutdown`** hooks are called across active singleton services.
 2. `RestApplication` initiates HTTP server closure (`server.close()`), stopping new TCP connections and destroying idle keep-alive connections.
-3. Active in-flight requests are allowed up to `shutdownTimeout` (configured via `AppOptions` in `providersPerApp`, default: 15,000 ms) to finish processing before being forcibly closed.
+3. Active in-flight requests are allowed up to `shutdownTimeout` (configured by passing it as the second argument to `RestApplication.create()` in `main.ts`, default: 15,000 ms) to finish processing before being forcibly closed.
 4. **`OnShutdown`** hooks are called after the HTTP server has completely closed.
 
 For general details on Holu application lifecycle hooks, see the [holu-core-architecture](../holu-core-architecture/SKILL.md#part-4-application-lifecycle--graceful-shutdown) skill.
