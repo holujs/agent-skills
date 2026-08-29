@@ -1,6 +1,6 @@
 ## Project context
 
-This repository contains a Holu application.
+This repository contains agent skills for the Holu framework.
 
 Holu is TypeScript Node.js framework based on decorators, modules, dependency injection, extensions, metadata reflection, and explicit module composition.
 

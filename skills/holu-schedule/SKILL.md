@@ -87,6 +87,9 @@ Runs the method on a cron schedule. Uses the [`cron`](https://www.npmjs.com/pack
 | `threshold`         | `number`  | `250`   | Millisecond threshold to skip missed ticks on slow/busy hardware.                       |
 | `initialDelay`      | `number`  | —       | Delay in milliseconds before the cron job first starts after bootstrap.                 |
 
+> [!WARNING]
+> `waitForCompletion` and `threshold` are declared in `CronOptions` but are **not currently passed through** to the underlying `CronJob` by `SchedulerOrchestrator`. If you rely on these options, be aware they will have no effect at runtime until this is fixed in the framework.
+
 **6-field cron syntax** (seconds-level precision):
 
 ```
@@ -152,7 +155,7 @@ import { CronExpression } from '@holu/schedule';
 @cron(CronExpression.MONDAY_TO_FRIDAY_AT_9AM)
 ```
 
-Key members (supports both 5-field standard and 6-field seconds-precision expressions):
+Key members (supports both 5-field standard and 6-field seconds-precision expressions) — these are just a few of the 50+ predefined expressions available:
 
 | Member                                 | Cron String         |
 | -------------------------------------- | ------------------- |
@@ -325,5 +328,61 @@ The `ScheduleExtension` is registered with `exportOnly: true` in `ScheduleModule
 | `getCronJob(name)` throws `No Scheduler found`       | Name not provided in `CronOptions`, or the task was already deleted. Use `doesExist()` first.                       |
 | `addCronJob(name, job)` throws `Duplicate Scheduler` | Two decorated methods share the same `name`. Each name must be unique across the entire application.                |
 | Cron job not stopped on shutdown                     | Ensure Holu shutdown hooks are properly triggered. `SchedulerOrchestrator.beforeShutdown()` handles cleanup.     |
+| Task method throws an exception                      | The exception is caught and logged automatically. It will not crash the Node.js process.                            |
 | `initialDelay` not working                           | Check that `disabled` is not also set to `true` — combining both prevents automatic start.                          |
 | Anonymous tasks not retrievable by name              | Tasks without a `name` are assigned a random UUID at runtime. Always provide a `name` for tasks you need to manage. |
+
+## End-to-End Example
+
+Here is a complete example of defining scheduled tasks, registering them in a module, and dynamically interacting with them via a REST controller:
+
+```ts
+import { injectable } from '@holu/core';
+import { controller, restRootModule, route } from '@holu/rest';
+import { ScheduleModule, cron, interval, timeout, SchedulerRegistry } from '@holu/schedule';
+
+@injectable()
+export class MyScheduledTasks {
+  @cron('*/5 * * * * *', { name: 'cron-job' })
+  handleCron() {
+    console.log('Cron job runs every 5 seconds');
+  }
+
+  @interval('interval-job', 3000)
+  handleInterval() {
+    console.log('Interval runs every 3 seconds');
+  }
+
+  @timeout('timeout-job', 2000)
+  handleTimeout() {
+    console.log('Timeout runs once after 2 seconds');
+  }
+}
+
+@controller()
+export class ScheduleController {
+  constructor(private registry: SchedulerRegistry) {}
+
+  @route('GET', 'tasks')
+  listTasks() {
+    return {
+      intervals: this.registry.getIntervals(), // Returns array of interval names
+      timeouts: this.registry.getTimeouts(), // Returns array of timeout names
+      cronJobs: Array.from(this.registry.getCronJobs().keys()), // Returns array of cron job names
+    };
+  }
+
+  @route('POST', 'tasks/stop-cron')
+  stopCron() {
+    this.registry.deleteCronJob('cron-job');
+    return { message: 'Cron job stopped and deleted' };
+  }
+}
+
+@restRootModule({
+  imports: [ScheduleModule], // Required to enable scheduling
+  controllers: [ScheduleController],
+  providersPerMod: [MyScheduledTasks], // Scheduled tasks must be instantiated at the module or app level
+})
+export class AppModule {}
+```

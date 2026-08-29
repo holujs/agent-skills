@@ -18,7 +18,7 @@ Extensions run **after** Holu collects static metadata from decorators but **bef
 
 ## Implementing An Extension
 
-An extension is a class decorated with `@injectable()` that implements the `Extension<T>` interface, where `T` specifies the payload return type of `stage1()` (and no other stage method). All three stage methods are **optional** — implement only the stages you need.
+An extension is a class decorated with `@injectable()` that implements the `Extension<T>` interface, where `T` specifies the payload return type of `stage1()` (and no other stage method). While each individual stage method is optional, an extension **must** implement at least one of the three stages (otherwise an `InvalidExtension` error is thrown).
 
 > [!IMPORTANT]
 > The stages `stage1`, `stage2`, and `stage3` are framework lifecycle hooks that are **always executed sequentially** in that order during the application bootstrap process. They are never skipped or executed out of order. Therefore, you can rely on state populated in `stage2` (like a module injector instance) to always be available in `stage3`.
@@ -34,16 +34,15 @@ export class MyExtension implements Extension<MyPayload | void> {
     @inject(PROVIDERS_PER_APP) protected providersPerApp: Provider[],
   ) {}
 
-  async stage1(isLastModule: boolean): Promise<MyPayload | void> {
-    // Stage 1: called once per module while providers are being dynamically collected.
+  async stage1(isLastModule: boolean): Promise<MyPayload> {
     // isLastModule === true when this is the last module that imports this extension.
     // Return a payload (e.g., collected metadata) that other extensions can consume
-    // via ExtensionManager.stage1(). Return void if no payload is produced.
+    // via ExtensionManager.stage1().
   }
-
   async stage2(injectorPerMod: Injector): Promise<void> {
     // Stage 2: called after stage1 finishes for ALL modules.
-    // Receives a ready module-level injector.
+    // Receives a ready module-level injector. Use this to resolve providers
+    // or set data on the Context service (`injectorPerMod.get(Context)`).
   }
 
   async stage3(): Promise<void> {
@@ -52,6 +51,9 @@ export class MyExtension implements Extension<MyPayload | void> {
   }
 }
 ```
+
+> [!TIP]
+> In `stage2` or `stage3`, instead of dynamically adding a `ValueProvider` for configurations, it is highly recommended to retrieve the core `Context` service (`injectorPerMod.get(Context)`) and store global configuration objects or extension states via `context.set(TOKEN, data)`.
 
 ### Constructor Injection Constraints
 
@@ -66,7 +68,7 @@ export class MyExtension implements Extension<MyPayload | void> {
 
 ### Accessing Extension Metadata (`extensionsMeta`)
 
-Extension-specific configurations passed via `@featureModule({ extensionsMeta: { ... } })` or dynamic module options (`DynamicModule.withParams({ extensionsMeta: { ... } })`) are normalized by `ModuleNormalizer` into `normalizedModuleMeta.extensionsMeta`.
+Extension-specific configurations passed via `@featureModule({ extensionsMeta: { ... } })` or dynamic module options (e.g. `MyModule.withParams({ extensionsMeta: { ... } })`) are normalized by `ModuleNormalizer` into `normalizedModuleMeta.extensionsMeta`.
 
 An extension retrieves `extensionsMeta` from `normalizedModuleMeta` depending on how it receives module metadata:
 
@@ -251,12 +253,12 @@ A separate instance of your extension is created for each module where it is imp
 
 #### Handling `delay`
 
-When requesting app-wide data you **must** check `meta.delay`. If `true`, not all modules that import `TargetExtension` have completed `stage1` yet — return early; the framework will call your extension again later:
+When requesting app-wide data you **must** check `meta.delay`. If `true`, not all modules that import `TargetExtension` have completed `stage1` yet — return early; the framework will call your extension's `stage1(true)` method again later during a dedicated `perAppHandling` phase (after all standard module processing completes):
 
 ```ts
 const meta = await this.extensionManager.stage1(TargetExtension, this);
 if (meta.delay) {
-  return; // not ready yet — framework will re-invoke this extension
+  return; // not ready yet — framework will re-invoke this extension (perAppHandling)
 }
 
 // meta.groupDataPerApp: AppExtensionGroupMeta<T>[]

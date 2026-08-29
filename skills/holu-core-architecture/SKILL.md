@@ -159,13 +159,34 @@ Use a static factory method when a module is commonly imported with configuratio
 import { type DynamicModule } from '@holu/core';
 
 export class UsersModule {
-  static withPrefix(path: string): DynamicModule<UsersModule> {
-    return { module: this, path };
+  static withOpts(config: UsersConfig): DynamicModule<UsersModule> {
+    return {
+      module: this,
+      providersPerMod: [{ token: UsersConfig, useValue: config }],
+    };
   }
 }
 ```
 
+> [!NOTE]
+> The core `DynamicModule` interface does **not** include a `path` property. In `@holu/rest`, the `path` is applied via the REST aspect decorator metadata (e.g. `imports: [{ path: 'users', module: UsersModule }]` inside `@restModule()`), not inside `DynamicModule` itself.
+
 Pass extension-specific data via `extensionsMeta` inside `DynamicModule` or module decorators (`@featureModule`, `@restModule`, etc.). Keep each extension's data under a single dedicated key. During module initialization, `extensionsMeta` is normalized into `normalizedModuleMeta.extensionsMeta`, where extensions can access it (e.g. `const oasOptions = normalizedModuleMeta.extensionsMeta.oasOptions as OasOptions`).
+
+### ProviderBuilder API
+
+As an alternative to raw provider arrays, `providersPer*` arrays also accept `ProviderBuilder` instances. The `ProviderBuilder` provides a fluent API for declaring and overriding providers.
+
+```ts
+import { ProviderBuilder } from '@holu/core';
+
+@featureModule({
+  providersPerMod: new ProviderBuilder()
+    .useClass(MyService, MockService)
+    .useValue(API_KEY, '123')
+})
+export class MockModule {}
+```
 
 ### Aspect Decorators
 
@@ -174,7 +195,7 @@ An **aspect decorator** is a custom class decorator created using `Reflector.mak
 > [!WARNING]
 > If you can easily pass metadata to a module using a dynamic module, creating an aspect decorator is **not recommended**. Consider using a dynamic module first.
 
-For details on the roles of aspect decorators (root module, feature module, and modifier decorators), usage rules, and parent module aspect propagation mechanics, see [references/REFERENCE.md](references/REFERENCE.md#part-3-aspect-decorators-and-moduleaspect).
+For details on the roles of aspect decorators (root module, feature module, and modifier decorators), usage rules, and parent module aspect propagation mechanics, see [references/REFERENCE.md](references/REFERENCE.md#part-3-aspect-decorators-and-moduleaspecthandler).
 
 ### Provider Visibility And Lifetime
 
@@ -453,7 +474,9 @@ For details on creating custom decorators, collecting metadata, inheritance chai
 
 ## Part 4: Application Lifecycle & Graceful Shutdown
 
-Holu supports graceful shutdown, allowing applications to stop accepting new requests, wait for active requests to finish, and execute resource cleanup in singleton services before exiting cleanly.
+
+Holu provides lifecycle hooks for graceful shutdown, allowing modules to clean up resources before exiting.
+
 
 ### Enabling Process Signal Interception
 
@@ -506,7 +529,7 @@ For complete code examples, typed method design, log buffering mechanics, and ov
 7. Check for missing `@injectable()` on a class that has constructor dependencies.
 8. Ensure that array types are not being passed directly as runtime tokens; check for `InjectionToken` usage.
 9. Verify that any `TokenProvider` (using `useToken`) eventually terminates in a non-token provider mapping.
-10. Check for accidental aspectg of regular and multi-providers.
+10. Check for accidental mixing of regular and multi-providers.
 
 ### Metadata Reflector Troubleshooting Checklist
 

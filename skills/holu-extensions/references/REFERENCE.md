@@ -29,9 +29,7 @@ interface Extension<T = any> {
 type ExtensionClass<T = any> = Class<Extension<T>>;
 ```
 
-All three methods are optional. The class must be decorated with `@injectable()`.
-
----
+While each individual method is optional, the class must implement at least one of the three stages. The class must be decorated with `@injectable()`.
 
 ## `ExtensionGroupMeta<T>` Shape
 
@@ -50,8 +48,6 @@ class ExtensionGroupMeta<T = any> {
 
 `groupData` contains the values returned by `stage1()` from every extension that belongs to the requested class or group. If an extension returned `undefined`/`void`, that slot is still present.
 
----
-
 ## `AppExtensionGroupMeta<T>` Shape
 
 Each element of `groupDataPerApp` in a cross-module call. It is `ExtensionGroupMeta<T>` without the `groupDataPerApp` field itself:
@@ -62,8 +58,6 @@ type AppExtensionGroupMeta<T = any> = Omit<ExtensionGroupMeta<T>, 'groupDataPerA
 ```
 
 `groupDataPerApp` is an array with one entry per module that registered the target extension. Iterate it to aggregate data across all modules.
-
----
 
 ## `ExtensionDebugMeta<T>` Shape
 
@@ -79,8 +73,6 @@ class ExtensionDebugMeta<T = any> {
   ) {}
 }
 ```
-
----
 
 ## `ExtensionConfig` Union
 
@@ -172,20 +164,6 @@ await this.extensionManager.stage1(Extension2); // Returns groupData from Extens
 await this.extensionManager.stage1(Extension3); // Returns groupData ONLY from Extension3
 ```
 
-## `ExtensionsMetaPerApp` Shape
-
-A free-form map that extensions can use to store app-level aggregated results:
-
-```ts
-class ExtensionsMetaPerApp {
-  [key: string]: AnyObj;
-}
-```
-
-This class is available as a DI token. Extensions that need to publish app-wide results can inject it and write to a keyed slot.
-
----
-
 ## `ExtensionCounters`
 
 Tracks how many modules still need to execute each extension/group:
@@ -197,8 +175,6 @@ class ExtensionCounters {
 ```
 
 Used internally by `ExtensionManager`. `countdown === 0` means the extension has been called in all modules — `isLastModule` will be `true` on the next invocation.
-
----
 
 ## `ExtensionManager.stage1()` Overloads
 
@@ -213,19 +189,22 @@ stage1<T>(ExtCls: ExtensionClass<T>, pendingExtension: Extension): Promise<Parti
 
 When `delay` is `false` on the cross-module call, the returned object has `groupDataPerApp` populated but `groupData`, `groupDebugMeta`, `moduleName`, and `countdown` are omitted. Always check `delay` before accessing `groupDataPerApp`.
 
----
-
 ## Error Types
 
 | Error class                     | When thrown                                                                                  |
 | ------------------------------- | -------------------------------------------------------------------------------------------- |
 | `UndeclaredExtensionDependency` | Extension A called `extensionManager.stage1(B)` but B is not listed in A's `afterExtensions` |
-| `CyclicExtensions`              | A cycle was detected in the extension dependency graph                                       |
-| `ExtensionExecutionFailure`     | Any unhandled error thrown inside an extension's stage method                                |
+| `CyclicExtensions`              | General cycle detected in the `afterExtensions` dependency graph                             |
+| `ExtensionCyclicDependency`     | Specific cyclic resolution detected during actual execution (e.g. A calls B, B calls A)      |
+| `InvalidExtension`              | An extension was provided that implements zero stage methods (at least one is required)      |
+| `ExtensionExecutionFailure`     | Any unhandled error thrown inside an extension's `stage1` method                             |
+| `Stage2InitFailure`             | Any unhandled error thrown inside an extension's `stage2` method                             |
+| `Stage3InitFailure`             | Any unhandled error thrown inside an extension's `stage3` method                             |
+| `MetadataCollectionFailure`     | Error thrown when Holu fails to gather Reflector metadata required by the extension          |
+| `MetaOverrideFailure`           | Error thrown when attempting an invalid metadata override during extension registration        |
+| `ModuleInjectorCreationFailure` | Critical DI error occurring just before stage2 when building the module-level injector       |
 
-The full dependency chain is included in the error message.
-
----
+The full dependency chain is included in the error message where applicable.
 
 ## Stage Sequencing Summary
 
@@ -241,8 +220,6 @@ After stage2() completes for ALL modules:
 ```
 
 The order of extensions within a module at stage2 and stage3 is the same as at stage1.
-
----
 
 ## `extensionsMeta` Usage Pattern
 
